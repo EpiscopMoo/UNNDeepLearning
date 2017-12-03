@@ -35,7 +35,7 @@ NNetwork::NNetwork(int in_count, int hidden_count, int out_count) :
             fromhidden_ws[i][j] = rand0to1();
         }
     }
-    std::for_each(fromhidden_bs.begin(), fromhidden_bs.end(), [](float& x){x=rand0to1();});
+    std::for_each(fromhidden_bs.begin(), fromhidden_bs.end(), [this](float& x){x=rand0to1();});
 }
 
 void NNetwork::setup(vec2d &_data, vec2d& _validata, int _epoch_num, float _lrn_rate, float _epsilon)
@@ -61,11 +61,12 @@ void NNetwork::train() {
             vec1d& y = validata[i];
             predict(x);
             error += cross_entropy(y);
-            backpropagate(x, y);
+            backpropagate(y);
         }
-        error /= -data.size();
+        error /= data.size();
+        error = -error;
         if (error < epsilon){
-            std::cout << "Cross-entropy desired accuracy reached. Stopping." << std::endl;
+            std::cout << "Cross-entropy desired accuracy reached: " << error << " Stopping." << std::endl;
             return;
         }
     }
@@ -100,24 +101,24 @@ void NNetwork::predict(vec1d &x) {
         for (int w_idx = 0; w_idx < hidden_size; w_idx++){
             u += fromhidden_ws[w_idx][i]*hidden[w_idx];
         }
-        u = softmax(u);
     }
+    softmax();
 }
 
-void NNetwork::backpropagate(vec1d &x, vec1d &y) {
-    /* Used cross entropy deriv. with softmax is u - y,
+void NNetwork::backpropagate(vec1d &y) {
+    /* Used cross entropy deriv. with softmax is y - u,
      * reference I used: http://peterroelants.github.io/posts/neural_network_implementation_intermezzo02/
      */
 
     // 1. Compute "errors" for outputs
     for (int i=0; i<output_size; i++){
-        ho_gradients[i] = output[i] - y[i];
+        ho_gradients[i] = -output[i] + y[i];
 
         // ... and update the weights in HO-layer accordingly
         for (int j=0; j<hidden_size; j++){
-            fromhidden_ws[j][i] += learn_rate*0.8f * ho_gradients[i] * hidden[j];
+            fromhidden_ws[j][i] += learn_rate*0.9f * ho_gradients[i] * hidden[j];
         }
-        fromhidden_bs[i] += learn_rate*0.8f * ho_gradients[i];
+        fromhidden_bs[i] += learn_rate*0.9f * ho_gradients[i];
     }
 
     // 2. Now the same for IH-layer
@@ -130,7 +131,7 @@ void NNetwork::backpropagate(vec1d &x, vec1d &y) {
 
         //update weights
         for (int i=0; i<input_size; i++){
-            tohidden_ws[i][j] += learn_rate * ih_gradient * x[i];
+            tohidden_ws[i][j] += learn_rate * ih_gradient * input[i];
         }
         tohidden_bs[j] += learn_rate * ih_gradient;
     }
@@ -209,4 +210,27 @@ NNetwork::NNetwork(std::string filename) {
         }
         file.close();
     }
+}
+
+int NNetwork::get_class() {
+    auto _max = std::max_element(output.begin(), output.end());
+    return static_cast<int>(std::distance(output.begin(), _max));
+}
+
+void NNetwork::softmax() {
+    float div = 0.0f;
+    for (int i = 0; i < output_size; i++) {
+        div += exp(output[i]);
+    }
+
+    for (int i = 0; i < output_size; i++) {
+        output[i] = exp(output[i]) / div;
+    }
+
+}
+
+float NNetwork::rand0to1() {
+    float num = (float)dis(gen);
+    float factor = (float)dis(gen);
+    return factor < 0.5f ? -num : num;
 }

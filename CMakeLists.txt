@@ -3,14 +3,14 @@ project(neuro_0_0)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES main.cpp FVector.h NNetwork.cpp NNetwork.h typedefs.h Utils.h)
+set(SOURCE_FILES main.cpp NNetwork.cpp NNetwork.h typedefs.h Utils.h)
 add_executable(neuro_0_0 ${SOURCE_FILES})
 
 project(test)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES test/vec_test.cpp FVector.h NNetwork.cpp NNetwork.h typedefs.h Utils.h)
+set(SOURCE_FILES test/vec_test.cpp NNetwork.cpp NNetwork.h typedefs.h Utils.h)
 
 find_package (Threads)
 add_executable(neuro_0_0_test ${SOURCE_FILES})

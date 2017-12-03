@@ -6,6 +6,7 @@
 #define TEST_NNETWORK_H
 #include "typedefs.h"
 #include <random>
+#include <gtest/gtest_prod.h>
 
 class NNetwork {
 public:
@@ -25,7 +26,10 @@ public:
 
     void save(std::string filename);
 
+    int get_class();
+
 private:
+    FRIEND_TEST(NNetworkTest, Forward);
 
     vec2d data;
     vec2d validata;
@@ -61,14 +65,14 @@ private:
     /* Misc */
     std::mt19937 gen;//mersenne twister generator
     std::uniform_real_distribution<> dis;
-    inline float rand0to1() { return (float)dis(gen);}
+    float rand0to1();
 
     inline float sigma(float x) { return static_cast<float>(1.0 / (1.0 + exp(-x))); }
-    inline float softmax(float x) { float sum = 0.0f; for (int i=0; i<output_size; i++) sum += exp(x); return static_cast<float>(exp(x)/sum);}
+    void softmax();
     void shuffle();
 
 
-    void backpropagate(vec1d &x, vec1d &y);
+    void backpropagate(vec1d &y);
 
     float cross_entropy(vec1d &vector);
 

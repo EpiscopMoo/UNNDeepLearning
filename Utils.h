@@ -60,7 +60,7 @@ public:
             n_rows = ReverseInt(n_rows);
             file.read((char*)&n_cols, sizeof(n_cols));
             n_cols = ReverseInt(n_cols);
-            vec2d.reserve(static_cast<unsigned long>(number_of_images));
+            vec.reserve(static_cast<unsigned long>(number_of_images));
             for (int i = 0; i < number_of_images; ++i)
             {
                 vec1d tp;
@@ -68,14 +68,14 @@ public:
                 {
                     for (int c = 0; c < n_cols; ++c)
                     {
-                        unsigned char temp = 0;
+                        unsigned char temp;
                         file.read((char*)&temp, sizeof(temp));
                         tp.push_back((float)temp/255.0f);
                     }
                 }
                 vec.push_back(tp);
             }
-            return vec; //I pray move semantics will kick in
+            return vec;
         }
         throw std::invalid_argument("Error while reading data from file " + filename);
     }
@@ -117,7 +117,15 @@ public:
             auto& x = *_x;
             auto& y = *_y;
             network.predict(x);
+            int u = network.get_class();
+            if (u == y){
+                good++;
+            }
+            else{
+                bad++;
+            }
         }
+        return (float)good/data.size();
     }
 
 };
