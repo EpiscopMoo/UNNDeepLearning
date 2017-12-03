@@ -93,7 +93,7 @@ TEST(NNetworkTest, Forward){
     ASSERT_FLOAT_EQ(output[1], network.output[1]);
 }
 
-/*TEST(NNetwork, PredictionTest){
+TEST(NNetwork, PredictionTest){
     //considering the output equal to the input
     srand(0);
     int size = 1000;
@@ -123,17 +123,15 @@ TEST(NNetworkTest, Forward){
     float accuracy = Utils::validate(network, validation_set, validation_labels);
     std::cout << "GTEST: Accuracy = " << accuracy << std::endl;
     ASSERT_GT(accuracy, 0.75f);
-}*/
-
-TEST(NNetwork, PredictionTest2){
-    int clazz = 13;
-    NNetwork network("vanilla.params");
-    vec2d validation_set = Utils::read_Mnist("../data/test_images");
-    ivec1d validation_labels = Utils::read_Mnist_Label("../data/test_labels");
-    network.predict(validation_set[clazz]);
-    std::cout << "Predicted class vs. actual " << network.get_class() << " " << validation_labels[clazz] << std::endl;
-    ASSERT_EQ(network.get_class(), validation_labels[clazz]);
 }
+
+//TEST(NNetwork, PredictionTest2){
+//    NNetwork network("vanilla.params");
+//    vec2d validation_set = Utils::read_Mnist("../data/test_images");
+//    ivec1d validation_labels = Utils::read_Mnist_Label("../data/test_labels");
+//    float accuracy = Utils::validate(network, validation_set, validation_labels);
+//    ASSERT_GT(accuracy, 0.75f);
+//}
 
 
 int main(int argc, char **argv) {
